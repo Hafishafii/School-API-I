@@ -4,7 +4,7 @@ import { FaUserCircle } from "react-icons/fa";
 
 const CareerDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { careers, isLoading } = useCareers(1, "", "All");
+  const { careers, isLoading } = useCareers({ page: 1, search: "", statusFilter: "All" });
 
   const navigate = useNavigate();
 
@@ -13,12 +13,8 @@ const CareerDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto my-10 animate-pulse space-y-4">
-        <div className="bg-gray-300 h-14 rounded-md" />
-        <div className="bg-gray-300 h-6 w-1/2 rounded-md" />
-        <div className="bg-gray-300 h-6 w-1/3 rounded-md" />
-        <div className="bg-gray-300 h-6 w-2/3 rounded-md" />
-        <div className="bg-gray-300 h-40 rounded-md" />
+      <div className="flex justify-center items-center h-64">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }

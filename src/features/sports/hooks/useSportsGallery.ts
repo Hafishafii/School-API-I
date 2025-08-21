@@ -1,4 +1,3 @@
-// src/features/sports/hooks/useSportsGallery.ts
 import { useEffect, useState, useCallback } from "react";
 import api from "../../../lib/api";
 import type { SportItem, Winner } from "../types";
@@ -9,7 +8,7 @@ interface ApiWinner {
   name: string;
   photo: string;
   student_class: string;
-  position: Winner["position"];
+  position: string;
 }
 
 interface ApiSport {
@@ -28,17 +27,29 @@ interface ApiPaginatedResponse {
   results: ApiSport[];
 }
 
+const normalizePosition = (pos: string): Winner["position"] => {
+  if (pos === "1" || pos.toLowerCase() === "first") return "1st";
+  if (pos === "2" || pos.toLowerCase() === "second") return "2nd";
+  if (pos === "3" || pos.toLowerCase() === "third") return "3rd";
+  return "3rd";
+};
+
 export const useSportsGallery = () => {
   const [sports, setSports] = useState<SportItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
+  const [nextUrl, setNextUrl] = useState<string | null>(null);
+  const [prevUrl, setPrevUrl] = useState<string | null>(null);
 
-  const fetchSports = useCallback(async (pageNum = 1) => {
+  const fetchSports = useCallback(async (url?: string) => {
+    if (!url) url = "/sports/"; 
+
     setLoading(true);
     try {
-      const res = await api.get<ApiPaginatedResponse>(`/sports/?page=${pageNum}`);
-      setTotal(res.data.count);
+      const res = await api.get<ApiPaginatedResponse>(url);
+
+      setNextUrl(res.data.next);
+      setPrevUrl(res.data.previous);
 
       const mapped: SportItem[] = res.data.results.map((s) => ({
         id: s.id,
@@ -50,16 +61,12 @@ export const useSportsGallery = () => {
           id: w.id,
           name: w.name,
           student_class: w.student_class,
-          position: w.position,
+          position: normalizePosition(w.position),
           photo: w.photo,
         })),
       }));
 
-      if (pageNum === 1) {
-        setSports(mapped);
-      } else {
-        setSports((prev) => [...prev, ...mapped]);
-      }
+      setSports(mapped);
     } catch (err) {
       console.error("Error fetching sports:", err);
     } finally {
@@ -68,8 +75,30 @@ export const useSportsGallery = () => {
   }, []);
 
   useEffect(() => {
-    fetchSports(page);
-  }, [page, fetchSports]);
+    fetchSports("/sports/");
+  }, [fetchSports]);
 
-  return { sports, loading, page, setPage, total };
+  const goNext = () => {
+    if (nextUrl) {
+      setPage((p) => p + 1);
+      fetchSports(nextUrl);
+    }
+  };
+
+  const goPrev = () => {
+    if (prevUrl) {
+      setPage((p) => Math.max(1, p - 1));
+      fetchSports(prevUrl);
+    }
+  };
+
+  return {
+    sports,
+    loading,
+    page,
+    nextUrl,
+    prevUrl,
+    goNext,
+    goPrev,
+  };
 };

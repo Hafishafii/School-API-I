@@ -5,7 +5,7 @@ import type { VaccancyFormData } from "../../features/admin/AddVaccancy/types";
 
 export default function EditVaccancyPage() {
   const { id } = useParams<{ id: string }>();
-  const { careers, isLoading } = useCareers(1, "", "All");
+  const { careers, isLoading } = useCareers({ page: 1, search: "", statusFilter: "All" });
 
   if (isLoading) {
     return <div className="text-center py-10">Loading career data...</div>;

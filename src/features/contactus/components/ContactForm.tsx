@@ -42,11 +42,6 @@ const ContactForm = () => {
         className="w-full p-2 border rounded"
       ></textarea>
 
-      <div>
-        <input type="checkbox" required id="notRobot" />{" "}
-        <label htmlFor="notRobot">I'm not a robot</label>
-      </div>
-
       <button
         type="submit"
         disabled={loading}

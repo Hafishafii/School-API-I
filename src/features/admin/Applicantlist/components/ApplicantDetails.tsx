@@ -1,22 +1,51 @@
-import { useParams, Link } from "react-router-dom";
-import { useApplicants } from "../hooks/useApplicants";
-import type { Applicant } from "../types"; 
-import { ArrowLeft } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { useApplicant } from "../hooks/useApplicant";
+import { Skeleton } from "../../../../components/ui/skeleton";
+import { Button } from "../../../../components/ui/button"; // ✅ using shared Button
+import { Download } from "lucide-react";
 
 const ApplicantDetails = () => {
   const { id } = useParams();
-  const { getApplicantById } = useApplicants();
-  const applicant: Applicant | undefined = getApplicantById(id || "");
+  const { applicant, loading, error } = useApplicant(id);
 
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl p-8 shadow-md max-w-4xl mx-auto animate-pulse">
+        {/* Header skeleton */}
+        <div className="flex items-center mb-6">
+          <div>
+            <Skeleton className="h-4 w-32 mb-2" />
+            <Skeleton className="h-6 w-48" />
+          </div>
+        </div>
+
+        {/* Body skeleton */}
+        <div className="flex flex-col md:flex-row gap-8 mt-4">
+          <Skeleton className="w-full md:w-1/2 h-[600px] rounded-xl" />
+          <div className="w-full md:w-1/2 bg-gray-50 p-6 rounded-xl border space-y-4">
+            <Skeleton className="h-5 w-40" />
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-4 w-1/3" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) return <div className="text-center text-red-500 p-8">{error}</div>;
   if (!applicant) return <div className="text-center p-8">Applicant not found.</div>;
 
   return (
-    <div className="bg-white rounded-xl p-8 shadow-md">
+    <div className="bg-white rounded-xl p-8 shadow-md max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-center mb-6">
-        <Link to="/admin/career/${id}/applicants" className="mr-3">
-          <ArrowLeft size={20} />
-        </Link>
+      <div className="flex items-center justify-between mb-6">
         <div>
           <p className="text-sm text-gray-500">Applicant info</p>
           <h2 className="text-xl font-semibold">
@@ -28,13 +57,32 @@ const ApplicantDetails = () => {
 
       {/* Body */}
       <div className="flex flex-col md:flex-row gap-8 mt-4">
-        {/* Resume Viewer */}
-        <div className="w-full md:w-1/2 h-[600px] border rounded-xl overflow-hidden shadow-sm">
-          <iframe
-            src={applicant.resume}
-            title="Resume"
-            className="w-full h-full"
-          />
+        {/* Resume Viewer + download under preview */}
+        <div className="w-full md:w-1/2 flex flex-col">
+          <div className="h-[600px] border rounded-xl overflow-hidden shadow-sm">
+            <iframe
+              src={applicant.resume}
+              title="Resume"
+              className="w-full h-full"
+            />
+          </div>
+
+          {/* Download button (under preview) */}
+          <div className="mt-4">
+            <a
+              href={applicant.resume}
+              download
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button
+                className="w-full flex items-center justify-center gap-2 bg-gray-400 text-gray-800 hover:bg-gray-300"
+              >
+                <Download size={16} />
+                Download Resume
+              </Button>
+            </a>
+          </div>
         </div>
 
         {/* General Information */}

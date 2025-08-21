@@ -7,45 +7,66 @@ interface CareersResponse {
   next: string | null;
   previous: string | null;
   results: Career[];
+  page_size?: number;
 }
 
-export const useCareers = (
-  page: number,
-  search: string,
-  statusFilter: string
-) => {
+interface UseCareersParams {
+  page?: number;
+  search?: string;
+  statusFilter?: string;
+  currentPageUrl?: string | null; 
+}
+
+export const useCareers = ({
+  page = 1,
+  search = "",
+  statusFilter = "All",
+  currentPageUrl = null,
+}: UseCareersParams) => {
   const [careers, setCareers] = useState<Career[]>([]);
   const [count, setCount] = useState(0);
   const [next, setNext] = useState<string | null>(null);
   const [previous, setPrevious] = useState<string | null>(null);
+  const [pageSize, setPageSize] = useState(10); 
   const [isLoading, setIsLoading] = useState(true);
-  const page_size = 10; 
 
   useEffect(() => {
     setIsLoading(true);
 
-    const params: Record<string, string | boolean | number> = { page };
-    if (search) params.search = search;
-    if (statusFilter === "Open") params.is_active = true;
-    if (statusFilter === "Closed") params.is_active = false;
+    const fetchData = async () => {
+      try {
+        const url = currentPageUrl || "/jobs/";
+        const params: Record<string, string | boolean | number> = {};
 
-    api
-      .get<CareersResponse>("/jobs/", { params })
-      .then((res) => {
+        if (!currentPageUrl) {
+          params.page = page;
+          if (search) params.search = search;
+          if (statusFilter === "Open") params.is_active = true;
+          if (statusFilter === "Closed") params.is_active = false;
+        }
+
+        const res = await api.get<CareersResponse>(url, { params });
+
         setCareers(res.data.results);
         setCount(res.data.count);
         setNext(res.data.next);
         setPrevious(res.data.previous);
-      })
-      .catch((err) => {
+
+        // read page_size from backend if available
+        if (res.data.page_size) setPageSize(res.data.page_size);
+      } catch (err) {
         console.error("Failed to fetch jobs", err);
         setCareers([]);
         setCount(0);
         setNext(null);
         setPrevious(null);
-      })
-      .finally(() => setIsLoading(false));
-  }, [page, search, statusFilter]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  return { careers, count, next, previous, page_size, isLoading };
+    fetchData();
+  }, [page, search, statusFilter, currentPageUrl]);
+
+  return { careers, count, next, previous, pageSize, isLoading };
 };

@@ -7,12 +7,23 @@ const chipByPos: Record<Winner["position"], string> = {
   "3rd": "from-amber-400 to-orange-500",
 };
 
+const rankNumber: Record<Winner["position"], string> = {
+  "1st": "1",
+  "2nd": "2",
+  "3rd": "3",
+};
+
 export default function WinnerCard({ winner }: { winner: Winner }) {
   return (
     <div className="w-[110px] text-center">
       <div
-        className={`rounded-2xl p-3 text-white bg-gradient-to-br ${chipByPos[winner.position]} shadow`}
+        className={`relative overflow-visible rounded-2xl p-3 text-white bg-gradient-to-br ${chipByPos[winner.position]} shadow`}
       >
+        {/* Rank Badge */}
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-9 h-9 flex items-center justify-center rounded-full bg-white text-gray-900 font-bold shadow-lg">
+          {rankNumber[winner.position]}
+        </div>
+
         <img
           src={winner.photo}
           alt={winner.name}

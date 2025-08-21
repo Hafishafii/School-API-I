@@ -13,7 +13,7 @@ export interface SportItem {
   id: number;
   title: string;
   description: string;
-  created_at: string;
-  winners: Winner[];
-  images: string[]; 
+  created_at: string; 
+  winners: Winner[];  
+  images: string[];  
 }

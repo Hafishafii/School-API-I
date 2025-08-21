@@ -1,4 +1,3 @@
-// src/features/sports/components/SportCard.tsx
 import type { SportItem } from "../types";
 import WinnerCard from "./WinnerCard";
 
@@ -19,43 +18,34 @@ export default function SportCard({ sport }: { sport: SportItem }) {
           Winners
         </h3>
 
-        {/* Force row: 3rd | 1st | 2nd */}
-        <div className="flex justify-center gap-6">
-          {/* 3rd */}
-          {sport.winners
-            .filter((w) => w.position === "3rd")
-            .map((w) => (
-              <WinnerCard key={`${sport.id}-3rd-${w.id}`} winner={w} />
-            ))}
-
-          {/* 1st */}
-          {sport.winners
-            .filter((w) => w.position === "1st")
-            .map((w) => (
-              <WinnerCard key={`${sport.id}-1st-${w.id}`} winner={w} />
-            ))}
-
-          {/* 2nd */}
-          {sport.winners
-            .filter((w) => w.position === "2nd")
-            .map((w) => (
-              <WinnerCard key={`${sport.id}-2nd-${w.id}`} winner={w} />
-            ))}
-        </div>
+        {sport.winners.length === 0 ? (
+          <p className="text-center text-gray-500 text-sm">No winners announced yet.</p>
+        ) : (
+          <div className="flex justify-center gap-6">
+            {/* Render winners in forced order: 3rd | 1st | 2nd */}
+            {["3rd", "1st", "2nd"].map((pos) =>
+              sport.winners
+                .filter((w) => w.position === pos)
+                .map((w) => <WinnerCard key={`${sport.id}-${pos}-${w.id}`} winner={w} />)
+            )}
+          </div>
+        )}
       </div>
 
       {/* Gallery */}
-      <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
-        {sport.images.map((src, i) => (
-          <img
-            key={`${sport.id}-img-${i}`}
-            src={src}
-            alt={`${sport.title} ${i + 1}`}
-            className="w-full h-36 md:h-40 object-cover rounded-lg"
-            loading="lazy"
-          />
-        ))}
-      </div>
+      {sport.images.length > 0 && (
+        <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
+          {sport.images.map((src, i) => (
+            <img
+              key={`${sport.id}-img-${i}`}
+              src={src}
+              alt={`${sport.title} ${i + 1}`}
+              className="w-full h-36 md:h-40 object-cover rounded-lg"
+              loading="lazy"
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
