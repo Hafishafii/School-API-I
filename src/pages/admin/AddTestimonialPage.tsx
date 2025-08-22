@@ -1,43 +1,57 @@
-import { useNavigate } from "react-router-dom";
-import {
-  TestimonialForm,
-  useAddTestimonial,
-} from "../../features/admin/Testimonial";
+import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
+import { TestimonialForm, useAddTestimonial } from "../../features/admin/Testimonial";
 import type { Testimonial } from "../../features/admin/Testimonial/types";
-import { Skeleton } from "../../components/ui/skeleton";
 
 export default function AddTestimonialPage() {
-  const navigate = useNavigate();
-  const { addTestimonial, isLoading, success, error } = useAddTestimonial();
+  const { addTestimonial, isLoading, error } = useAddTestimonial();
+  const [pageLoading, setPageLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setPageLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSubmit = async (data: Testimonial) => {
     try {
       await addTestimonial(data);
-      navigate("/admin/testimonials/");
+      Swal.fire({
+        icon: "success",
+        title: "Testimonial added!",
+        text: "Your testimonial was successfully added.",
+        confirmButtonColor: "#2563eb",
+      });
     } catch (err) {
       console.error("Failed to add testimonial:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: (err as any)?.message || "Something went wrong",
+        confirmButtonColor: "#dc2626",
+      });
     }
   };
+
+  if (pageLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
       <h1 className="text-xl font-bold mb-4">Add Testimonial</h1>
 
-      {/* ✅ Show skeleton while saving/loading */}
       {isLoading ? (
-        <div className="space-y-4 bg-white p-6 rounded-lg shadow-md">
-          <Skeleton className="h-10 w-full" /> {/* Teacher Name */}
-          <Skeleton className="h-10 w-full" /> {/* Title */}
-          <Skeleton className="h-24 w-full" /> {/* Description */}
-          <Skeleton className="h-12 w-32" />   {/* Button */}
+        <div className="flex justify-center items-center py-20">
+          <div className="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
         </div>
       ) : (
         <TestimonialForm onSubmit={handleSubmit} isLoading={isLoading} />
       )}
 
-      {success && (
-        <p className="text-green-600 mt-2">Testimonial added successfully!</p>
-      )}
       {error && <p className="text-red-600 mt-2">{error}</p>}
     </div>
   );
