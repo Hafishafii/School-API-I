@@ -3,7 +3,7 @@ import WinnerCard from "./WinnerCard";
 
 export default function SportCard({ sport }: { sport: SportItem }) {
   return (
-    <section className="bg-white/90 backdrop-blur rounded-2xl shadow-sm ring-1 ring-gray-100 p-4 sm:p-6 mb-8">
+    <section className="bg-white/90 backdrop-blur rounded-2xl shadow-sm ring-1 ring-gray-100 p-4 sm:p-6 mb-8 flex flex-col">
       {/* Title */}
       <h2 className="text-lg sm:text-xl font-semibold text-center break-words">
         {sport.title}
@@ -26,7 +26,6 @@ export default function SportCard({ sport }: { sport: SportItem }) {
           </p>
         ) : (
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
-            {/* Render winners in forced order: 3rd | 1st | 2nd */}
             {["3rd", "1st", "2nd"].map((pos) =>
               sport.winners
                 .filter((w) => w.position === pos)
@@ -43,16 +42,18 @@ export default function SportCard({ sport }: { sport: SportItem }) {
 
       {/* Gallery */}
       {sport.images.length > 0 && (
-        <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
-          {sport.images.map((src, i) => (
-            <img
-              key={`${sport.id}-img-${i}`}
-              src={src}
-              alt={`${sport.title} ${i + 1}`}
-              className="w-full h-28 sm:h-32 md:h-36 lg:h-40 object-cover rounded-lg"
-              loading="lazy"
-            />
-          ))}
+        <div className="mt-6 overflow-x-auto">
+          <div className="flex gap-2 sm:gap-3 snap-x snap-mandatory">
+            {sport.images.map((src, i) => (
+              <img
+                key={`${sport.id}-img-${i}`}
+                src={src}
+                alt={`${sport.title} ${i + 1}`}
+                className="w-32 sm:w-36 md:w-40 h-28 sm:h-32 md:h-36 lg:h-40 object-cover rounded-lg flex-shrink-0 snap-start"
+                loading="lazy"
+              />
+            ))}
+          </div>
         </div>
       )}
     </section>
